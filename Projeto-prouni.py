@@ -22,8 +22,8 @@ columns_2015 = df_2015.columns
 #As colunas do respectivo DataFrame.
 
 lista_colunas = lista_colunas = [
-    ("2015", columns_2017),
-    ("2016", columns_2018),
+    ("2015", columns_2015),
+    ("2016", columns_2016),
     ("2017", columns_2017),
     ("2018", columns_2018),
     ("2019", columns_2019),
@@ -34,8 +34,6 @@ for ano, colunas in lista_colunas:
     for coluna in colunas:
         print(f"- {coluna}")
     print()
-#%%
-import pandas as pd
 
 def verificar_colunas_iguais(*dataframes):
     """
@@ -57,7 +55,7 @@ def verificar_colunas_iguais(*dataframes):
 
 # Exemplo de uso
 colunas_iguais = verificar_colunas_iguais(df_2015, df_2016, df_2017, df_2018, df_2019, df_2020)
-#%%
+
 # Dicionário com os novos nomes das colunas
 novo_nomes = {
     'CPF_BENEFICIARIO_BOLSA': 'CPF_BENEFICIARIO',
@@ -76,10 +74,36 @@ dataframes = [df_2015, df_2016, df_2017, df_2018, df_2019]
 for df in dataframes:
     df.rename(columns=novo_nomes, inplace=True)
 
-#%%
-
 # Unificando as bases de dados
 df_unificado = pd.concat(dataframes, axis=0)  # axis=0 para unir verticalmente
 
 # Exibindo o DataFrame unificado
 print(df_unificado.head())
+
+#%%
+
+# Alterando nome de colunas para retirar a repetição da palavra beneficiario presente nelas
+df_unificado.columns = df_unificado.columns.str.replace('BENEFICIARIO_', '', regex=True)
+df_unificado.columns = df_unificado.columns.str.replace('_BENEFICIARIO', '', regex=True)
+
+print(df_unificado.columns)
+
+
+#%%
+nulo = df_unificado[['ANO_CONCESSAO_BOLSA','NOME_IES_BOLSA', 'NOME_CURSO_BOLSA', 'SEXO', 'RACA', 'DATA_NASCIMENTO', 'DEFICIENTE_FISICO', 'UF']].isnull().sum()
+
+#removendo linhas que possuam ausente
+# Correção: passe apenas a lista de colunas para o parâmetro subset
+if 'ANO_CONCESSAO_BOLSA' in df_unificado.columns:
+    df_unificado['ANO_CONCESSAO_BOLSA'] = pd.to_numeric(df_unificado['ANO_CONCESSAO_BOLSA'], errors='coerce').fillna(0).astype(int)
+#%%
+# Verifique se há valores não numéricos ou nulos
+print(df_unificado['ANO_CONCESSAO_BOLSA'].unique())
+
+# Substitua valores nulos por um valor padrão (por exemplo, 0)
+df_unificado['ANO_CONCESSAO_BOLSA'] = df_unificado['ANO_CONCESSAO_BOLSA'].fillna(0).astype(int)
+#%%
+df_unificado['DATA_NASCIMENTO'] = pd.to_datetime(df_unificado['DATA_NASCIMENTO'], format='%d/%m/%Y', errors='coerce')
+print(df_unificado['DATA_NASCIMENTO'].isnull().sum())
+
+df_unificado['DATA_NASCIMENTO'] = pd.to_datetime(df_unificado['DATA_NASCIMENTO'], format='%d/%m/%Y')
