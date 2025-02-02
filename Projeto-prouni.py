@@ -1,3 +1,4 @@
+#%%
 import pandas as pd 
 
 df_2015 = pd.read_csv("pda-prouni-2015.csv", sep=";", encoding="latin-1")
@@ -33,3 +34,52 @@ for ano, colunas in lista_colunas:
     for coluna in colunas:
         print(f"- {coluna}")
     print()
+#%%
+import pandas as pd
+
+def verificar_colunas_iguais(*dataframes):
+    """
+    Verifica se todas as colunas dos DataFrames fornecidos são iguais.
+    
+    - True se todas as colunas forem iguais, False caso contrário.
+    """
+    colunas_padrao = dataframes[0].columns  # Pega as colunas do primeiro DataFrame
+
+    for i, df in enumerate(dataframes[1:], start=1):
+        if not colunas_padrao.equals(df.columns):  # Compara com os outros DataFrames
+            print(f"As colunas do DataFrame {i+1} são diferentes.")
+            print(f"Esperado: {list(colunas_padrao)}")
+            print(f"Encontrado: {list(df.columns)}\n")
+            return False  # Retorna False se encontrar diferença
+
+    print("Todas as colunas são iguais!")
+    return True  # Retorna True se todas forem idênticas
+
+# Exemplo de uso
+colunas_iguais = verificar_colunas_iguais(df_2015, df_2016, df_2017, df_2018, df_2019, df_2020)
+#%%
+# Dicionário com os novos nomes das colunas
+novo_nomes = {
+    'CPF_BENEFICIARIO_BOLSA': 'CPF_BENEFICIARIO',
+    'SEXO_BENEFICIARIO_BOLSA': 'SEXO_BENEFICIARIO',
+    'RACA_BENEFICIARIO_BOLSA': 'RACA_BENEFICIARIO',
+    'DT_NASCIMENTO_BENEFICIARIO': 'DATA_NASCIMENTO',
+    'REGIAO_BENEFICIARIO_BOLSA': 'REGIAO_BENEFICIARIO',
+    'SIGLA_UF_BENEFICIARIO_BOLSA': 'UF_BENEFICIARIO',
+    'MUNICIPIO_BENEFICIARIO_BOLSA': 'MUNICIPIO_BENEFICIARIO'
+}
+
+# Lista de DataFrames
+dataframes = [df_2015, df_2016, df_2017, df_2018, df_2019]
+
+# Renomeando as colunas em cada DataFrame de forma dinâmica
+for df in dataframes:
+    df.rename(columns=novo_nomes, inplace=True)
+
+#%%
+
+# Unificando as bases de dados
+df_unificado = pd.concat(dataframes, axis=0)  # axis=0 para unir verticalmente
+
+# Exibindo o DataFrame unificado
+print(df_unificado.head())
