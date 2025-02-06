@@ -1,7 +1,9 @@
-#%%
 import pandas as pd 
 import unidecode
-#%%
+from sqlalchemy import create_engine, text
+from dotenv import load_dotenv
+import os
+
 # Carregando os arquivos CSV
 
 df_2015 = pd.read_csv("pda-prouni-2015.csv", sep=";", encoding="latin-1")
@@ -18,7 +20,7 @@ columns_2018 = df_2018.columns
 columns_2017 = df_2017.columns
 columns_2016 = df_2016.columns
 columns_2015 = df_2015.columns
-#%%
+
 # Criando lista de colunas
 lista_colunas = [
     ("2015", columns_2015),
@@ -35,7 +37,7 @@ for ano, colunas in lista_colunas:
         print(f"- {coluna}")
     print()
     
-#%%
+
 # Função para verificar se os DataFrames possuem colunas idênticas
 def verificar_colunas_iguais(*dataframes):
     colunas_padrao = dataframes[0].columns  # Pega as colunas do primeiro DataFrame
@@ -52,7 +54,7 @@ def verificar_colunas_iguais(*dataframes):
 
 # Verificando se as colunas são iguais
 colunas_iguais = verificar_colunas_iguais(df_2015, df_2016, df_2017, df_2018, df_2019, df_2020)
-#%%
+
 # Dicionário com os novos nomes das colunas
 novo_nomes = {
     'ï»¿ANO_CONCESSAO_BOLSA': 'ANO_CONCESSAO',
@@ -68,7 +70,7 @@ novo_nomes = {
 
 # Lista de DataFrames
 dataframes = [df_2015, df_2016, df_2017, df_2018, df_2019]
-#%%
+
 # Renomeando colunas
 for df in dataframes:
     df.rename(columns=novo_nomes, inplace=True)
@@ -78,19 +80,22 @@ df_unificado = pd.concat(dataframes, axis=0)
 
 # Exibindo o DataFrame unificado
 print(df_unificado.head())
-#%%
-# Alterando nome das colunas para retirar "BENEFICIARIO_" e "_BENEFICIARIO"
-df_unificado.columns = df_unificado.columns.str.replace('BENEFICIARIO_', '', regex=True)
-df_unificado.columns = df_unificado.columns.str.replace('_BENEFICIARIO', '', regex=True)
 
-df_unificado.columns = df_unificado.columns.str.replace('BOLSA_', '', regex=True)
-df_unificado.columns = df_unificado.columns.str.replace('_BOLSA', '', regex=True)
+# Alterando nome das colunas para retirar "BENEFICIARIO" e "BOLSA"
+padroes_para_remover = [
+    'BENEFICIARIO_',
+    '_BENEFICIARIO',
+    'BOLSA_',
+    '_BOLSA'
+]
 
-print(df_unificado.shape)
+# Loop para aplicar as substituições em todas as colunas
+for padrao in padroes_para_remover:
+    df_unificado.columns = df_unificado.columns.str.replace(padrao, '', regex=True)
 
 # Verificando valores nulos
 nulo = df_unificado[['ANO_CONCESSAO', 'NOME_IES', 'NOME_CURSO', 'SEXO', 'RACA', 'DATA_NASCIMENTO', 'DEFICIENTE_FISICO', 'UF']].isnull().sum()
-#%%
+
 # Convertendo "ANO_CONCESSAO_BOLSA" para inteiro, tratando nulos
 if 'ANO_CONCESSAO' in df_unificado.columns:
     df_unificado['ANO_CONCESSAO'] = pd.to_numeric(df_unificado['ANO_CONCESSAO'], errors='coerce').fillna(0).astype(int)
@@ -99,7 +104,7 @@ if 'ANO_CONCESSAO' in df_unificado.columns:
 print(df_unificado['ANO_CONCESSAO'].unique())
 
 # Convertendo "DATA_NASCIMENTO" para datetime
-#%%
+
 df_unificado['DATA_NASCIMENTO'] = pd.to_datetime(df_unificado['DATA_NASCIMENTO'], format='%d/%m/%Y', errors='coerce')
 print(df_unificado['DATA_NASCIMENTO'].isnull().sum())
 
@@ -119,10 +124,39 @@ def padronizar(texto):
 # Aplicando a função em todas as colunas
 for coluna in df_unificado.columns:
     df_unificado[coluna] = df_unificado[coluna].apply(padronizar)
-#%%
+
 # Padronizando os valores da coluna "TIPO_BOLSA"
 df_unificado['TIPO'] = df_unificado['TIPO'].replace({'BOLSA PARCIAL 50%': 'PARCIAL', 'BOLSA INTEGRAL': 'INTEGRAL'})
 df_unificado['SEXO'] = df_unificado['SEXO'].replace({'F': 'FEMININO', 'M': 'MASCULINO'})
 
-# Verificando se o DataFrame está vazio
-print(df_unificado.columns)
+df_unificado.head()
+
+#Enviando a tabela manupulada para o banco de dados
+# Definição dos parâmetros de conexão 
+load_dotenv()
+
+pwd= os.getenv("DB_PASSWORD")
+
+DB_USER = "postgres"  # Usuário padrão do PostgreSQL
+DB_PASSWORD = pwd  # Pegamos da variável de ambiente do Docker
+DB_HOST = "localhost"  # Conectando no Docker via localhost
+DB_PORT = "5433"  # Porta mapeada no seu Docker
+DB_NAME = "postgres"  # Substitua pelo nome correto do banco de dados
+
+# Criando a engine de conexão com o PostgreSQL
+engine = create_engine(f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}")
+
+# 🔹 Nome da tabela onde os dados serão armazenados
+TABLE_NAME = "projeto_prouni"
+
+# 🔹 Enviando o DataFrame para o PostgreSQL
+df_unificado.to_sql(TABLE_NAME, engine, if_exists="replace", index=False)
+
+print(f"✅ Dados enviados com sucesso para a tabela '{TABLE_NAME}' no PostgreSQL!")
+
+#verificando se esta conectado ao banco de dados
+with engine.connect() as connection:
+    result = connection.execute(text("SELECT version();")) 
+    for row in result:
+        print("Conectado ao PostgreSQL:", row[0])
+
