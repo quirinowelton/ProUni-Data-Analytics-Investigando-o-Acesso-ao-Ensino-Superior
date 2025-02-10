@@ -1,3 +1,4 @@
+#%%
 import pandas as pd 
 import unidecode
 from sqlalchemy import create_engine, text
@@ -133,30 +134,41 @@ df_unificado.head()
 
 #Enviando a tabela manupulada para o banco de dados
 # Definição dos parâmetros de conexão 
+from dotenv import load_dotenv
+import os
+from sqlalchemy import create_engine, text
+
+#%%
+
+# Carrega as variáveis de ambiente do arquivo .env
 load_dotenv()
 
-pwd= os.getenv("DB_PASSWORD")
+# Recupera a senha do banco de dados da variável de ambiente
+pwd = os.getenv("DB_PASSWORD")
 
+# Configurações de conexão com o PostgreSQL
 DB_USER = "postgres"  # Usuário padrão do PostgreSQL
-DB_PASSWORD = pwd  # Pegamos da variável de ambiente do Docker
-DB_HOST = "localhost"  # Conectando no Docker via localhost
-DB_PORT = "5433"  # Porta mapeada no seu Docker
-DB_NAME = "postgres"  # Substitua pelo nome correto do banco de dados
+DB_PASSWORD = pwd  # Senha do banco de dados (da variável de ambiente)
+DB_HOST = "localhost"  # Host do banco de dados
+DB_PORT = "5433"  # Porta mapeada no Docker
+DB_NAME = "postgres"  # Nome do banco de dados (substitua pelo nome correto)
 
-# Criando a engine de conexão com o PostgreSQL
+# Cria a engine de conexão com o PostgreSQL
 engine = create_engine(f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}")
 
-# 🔹 Nome da tabela onde os dados serão armazenados
+# Nome da tabela onde os dados serão armazenados
 TABLE_NAME = "projeto_prouni"
 
 # 🔹 Enviando o DataFrame para o PostgreSQL
+# Certifique-se de que `df_unificado` é um DataFrame válido do Pandas
 df_unificado.to_sql(TABLE_NAME, engine, if_exists="replace", index=False)
 
 print(f"✅ Dados enviados com sucesso para a tabela '{TABLE_NAME}' no PostgreSQL!")
 
-#verificando se esta conectado ao banco de dados
+# Verificando se está conectado ao banco de dados
 with engine.connect() as connection:
-    result = connection.execute(text("SELECT version();")) 
+    result = connection.execute(text("SELECT version();"))
     for row in result:
         print("Conectado ao PostgreSQL:", row[0])
 
+#%%
