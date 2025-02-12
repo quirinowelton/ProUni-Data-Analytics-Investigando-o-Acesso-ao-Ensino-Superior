@@ -1,3 +1,4 @@
+#%%
 import psycopg2
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -206,7 +207,7 @@ bolsas_ano = df['ANO_CONCESSAO'].value_counts().reset_index().sort_values(by="AN
 bolsas_ano.columns = ['Ano', 'Bolsas']
 df_bolsas_ano = pd.DataFrame(bolsas_ano)
 
-anos_completos = range(2015, 2020)
+anos_completos = range(2015, 2021)
 df_bolsas_ano = df_bolsas_ano.set_index('Ano').reindex(anos_completos, fill_value=0).reset_index()
 
 
@@ -256,6 +257,6 @@ plt.ylabel('Número de Bolsas', fontsize=12)
 plt.title('Distribuição de Bolsas por Modalidade e Ano', fontsize=14)
 plt.xticks(index, rotation=45, fontsize=10)
 plt.legend(fontsize=10)
-
 plt.tight_layout()
 plt.show()
+#%%
