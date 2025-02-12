@@ -1,4 +1,3 @@
-#%%
 import pandas as pd 
 import unidecode
 from sqlalchemy import create_engine, text
@@ -165,5 +164,3 @@ with engine.connect() as connection:
     result = connection.execute(text("SELECT version();")) 
     for row in result:
         print("Conectado ao PostgreSQL:", row[0])
-
-#%%
