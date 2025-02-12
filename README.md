@@ -20,7 +20,7 @@ Este repositório contém uma análise detalhada dos dados do Programa Universid
 
 ### 3. **Gráficos e Insights**
    - **Distribuição por Região**: Compara a porcentagem da população com a porcentagem de bolsas concedidas em cada região do Brasil.
-     
+![Gráfico do ProUni](graficos/output.png)
    - **Distribuição por Raça**: Mostra como as bolsas são distribuídas entre diferentes grupos raciais, comparando com a composição racial da população.
    - **Distribuição por Gênero**: Analisa a proporção de bolsas concedidas a homens e mulheres em relação à população geral.
    - **Evolução ao Longo dos Anos**: Mostra como o número de bolsas variou de 2015 a 2020.
