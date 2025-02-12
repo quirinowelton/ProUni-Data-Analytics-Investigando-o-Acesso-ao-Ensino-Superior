@@ -6,7 +6,6 @@ from dotenv import load_dotenv
 import os
 
 # Carregando os arquivos CSV
-
 df_2015 = pd.read_csv("pda-prouni-2015.csv", sep=";", encoding="latin-1")
 df_2016 = pd.read_csv("pda-prouni-2016.csv", sep=";", encoding="latin-1")
 df_2017 = pd.read_csv("pda-prouni-2017.csv", sep=";", encoding="latin-1")
@@ -146,21 +145,19 @@ load_dotenv()
 pwd= os.getenv("DB_PASSWORD")
 us = os.getenv('USER')
 
-DB_USER = us # Usuário padrão do PostgreSQL
-DB_PASSWORD = pwd  # Pegamos da variável de ambiente do Docker
-DB_HOST = "localhost"  # Conectando no Docker via localhost
-DB_PORT = "5433"  # Porta mapeada no seu Docker
-DB_NAME = "postgres"  # Substitua pelo nome correto do banco de dados
+DB_USER = 'postgre'
+DB_PASSWORD = 'senha123' 
+DB_HOST = "localhost" 
+DB_PORT = "5433"  
+DB_NAME = "postgres" 
 
 # Criando a engine de conexão com o PostgreSQL
 engine = create_engine(f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}")
 
-# 🔹 Nome da tabela onde os dados serão armazenados
 TABLE_NAME = "tabela_prouni"
 
 # 🔹 Enviando o DataFrame para o PostgreSQL
 df_unificado.to_sql(TABLE_NAME, engine, if_exists="replace", index=False)
-
 print(f"✅ Dados enviados com sucesso para a tabela '{TABLE_NAME}' no PostgreSQL!")
 
 #verificando se esta conectado ao banco de dados
