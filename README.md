@@ -20,11 +20,15 @@ Este repositório contém uma análise detalhada dos dados do Programa Universid
 
 ### 3. **Gráficos e Insights**
    - **Distribuição por Região**: Compara a porcentagem da população com a porcentagem de bolsas concedidas em cada região do Brasil.
-     
+![Gráfico do ProUni](graficos/output.png)
    - **Distribuição por Raça**: Mostra como as bolsas são distribuídas entre diferentes grupos raciais, comparando com a composição racial da população.
+![Gráfico do ProUni](graficos/output1.png)
    - **Distribuição por Gênero**: Analisa a proporção de bolsas concedidas a homens e mulheres em relação à população geral.
+![Gráfico do ProUni](graficos/output2.png)
    - **Evolução ao Longo dos Anos**: Mostra como o número de bolsas variou de 2015 a 2020.
+![Gráfico do ProUni](graficos/output3.png)
    - **Modalidade de Ensino**: Compara a quantidade de bolsas para cursos presenciais e a distância (EAD).
+![Gráfico do ProUni](graficos/output4.png)
 ### 5. **Como Executar o Projeto**
    1. Clone este repositório:
       ```bash

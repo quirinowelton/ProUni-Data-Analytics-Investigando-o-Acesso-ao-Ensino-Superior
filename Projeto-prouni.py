@@ -5,13 +5,12 @@ from dotenv import load_dotenv
 import os
 
 # Carregando os arquivos CSV
-
 df_2015 = pd.read_csv("pda-prouni-2015.csv", sep=";", encoding="latin-1")
 df_2016 = pd.read_csv("pda-prouni-2016.csv", sep=";", encoding="latin-1")
 df_2017 = pd.read_csv("pda-prouni-2017.csv", sep=";", encoding="latin-1")
 df_2018 = pd.read_csv("pda-prouni-2018.csv", sep=";", encoding="latin-1")
 df_2019 = pd.read_csv("pda-prouni-2019.csv", sep=";", encoding="latin-1")
-df_2020 = pd.read_csv("ProuniRelatorioDadosAbertos2020.csv", sep=";", encoding="latin-1")
+df_2020 = pd.read_csv("pda-prouni-2020.csv", sep=";", encoding="latin-1")
 
 # Obtendo os nomes das colunas de cada DataFrame
 columns_2020 = df_2020.columns
@@ -65,11 +64,12 @@ novo_nomes = {
     'DT_NASCIMENTO_BENEFICIARIO': 'DATA_NASCIMENTO',
     'REGIAO_BENEFICIARIO_BOLSA': 'REGIAO_BENEFICIARIO',
     'SIGLA_UF_BENEFICIARIO_BOLSA': 'UF_BENEFICIARIO',
-    'MUNICIPIO_BENEFICIARIO_BOLSA': 'MUNICIPIO_BENEFICIARIO'
+    'MUNICIPIO_BENEFICIARIO_BOLSA': 'MUNICIPIO_BENEFICIARIO',
+    
 }
 
 # Lista de DataFrames
-dataframes = [df_2015, df_2016, df_2017, df_2018, df_2019]
+dataframes = [df_2015, df_2016, df_2017, df_2018, df_2019, df_2020]
 
 # Renomeando colunas
 for df in dataframes:
@@ -110,10 +110,15 @@ print(df_unificado['DATA_NASCIMENTO'].isnull().sum())
 
 # Analisando valores únicos das colunas
 for coluna in df_unificado.columns:
-    valores_unicos = df_unificado[coluna].unique()
-    print(f"Valores únicos na coluna {coluna}:")
-    print(valores_unicos)
-    print("-" * 30)
+    if pd.api.types.is_numeric_dtype(df_unificado[coluna]) or pd.api.types.is_string_dtype(df_unificado[coluna]):
+        valores_unicos = df_unificado[coluna].unique()
+        print(f"Valores únicos na coluna {coluna}:")
+        print(valores_unicos)
+        print("-" * 30)
+    else:
+        print(f"A coluna {coluna} não pode ser analisada com unique().")
+        print("-" * 30)
+
 
 # Padronizando os dados tornando maiúsculas e removendo acentos
 def padronizar(texto):
@@ -128,6 +133,7 @@ for coluna in df_unificado.columns:
 # Padronizando os valores da coluna "TIPO_BOLSA"
 df_unificado['TIPO'] = df_unificado['TIPO'].replace({'BOLSA PARCIAL 50%': 'PARCIAL', 'BOLSA INTEGRAL': 'INTEGRAL'})
 df_unificado['SEXO'] = df_unificado['SEXO'].replace({'F': 'FEMININO', 'M': 'MASCULINO'})
+df_unificado['MODALIDADE_ENSINO'] = df_unificado['MODALIDADE_ENSINO'].replace({'EDUCACAO A DISTANCIA': 'EAD'})
 
 df_unificado.head()
 
@@ -136,22 +142,21 @@ df_unificado.head()
 load_dotenv()
 
 pwd= os.getenv("DB_PASSWORD")
+us = os.getenv('USER')
 
-DB_USER = "postgres"  # Usuário padrão do PostgreSQL
-DB_PASSWORD = pwd  # Pegamos da variável de ambiente do Docker
-DB_HOST = "localhost"  # Conectando no Docker via localhost
-DB_PORT = "5433"  # Porta mapeada no seu Docker
-DB_NAME = "postgres"  # Substitua pelo nome correto do banco de dados
+DB_USER = 'postgre'
+DB_PASSWORD = 'senha123' 
+DB_HOST = "localhost" 
+DB_PORT = "5433"  
+DB_NAME = "postgres" 
 
 # Criando a engine de conexão com o PostgreSQL
 engine = create_engine(f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}")
 
-# 🔹 Nome da tabela onde os dados serão armazenados
-TABLE_NAME = "projeto_prouni"
+TABLE_NAME = "tabela_prouni"
 
 # 🔹 Enviando o DataFrame para o PostgreSQL
 df_unificado.to_sql(TABLE_NAME, engine, if_exists="replace", index=False)
-
 print(f"✅ Dados enviados com sucesso para a tabela '{TABLE_NAME}' no PostgreSQL!")
 
 #verificando se esta conectado ao banco de dados
@@ -159,4 +164,3 @@ with engine.connect() as connection:
     result = connection.execute(text("SELECT version();")) 
     for row in result:
         print("Conectado ao PostgreSQL:", row[0])
-
