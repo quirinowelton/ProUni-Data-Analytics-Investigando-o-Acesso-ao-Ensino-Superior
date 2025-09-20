@@ -56,7 +56,7 @@ colunas_iguais = verificar_colunas_iguais(df_2015, df_2016, df_2017, df_2018, df
 
 # Dicionário com os novos nomes das colunas
 novo_nomes = {
-    'ï»¿ANO_CONCESSAO_BOLSA': 'ANO_CONCESSAO',
+    'ANO_CONCESSAO_BOLSA': 'ANO_CONCESSAO',
     'ANO_CONCESSAO_BOLSA': 'ANO_CONCESSAO',
     'CPF_BENEFICIARIO_BOLSA': 'CPF_BENEFICIARIO',
     'SEXO_BENEFICIARIO_BOLSA': 'SEXO_BENEFICIARIO',
