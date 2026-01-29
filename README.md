@@ -59,9 +59,3 @@ Este repositório contém uma análise detalhada dos dados do Programa Universid
    - Melhorar a performance do código com otimizações SQL
    - Descobrir o motivo da queda de inscritos no programa a partir de 2015
 
-### 7. **Contribuições**
-   Sinta-se à vontade para contribuir com melhorias, correções ou novas análises. Basta abrir uma issue ou enviar um pull request!
-
----
-
-Espero que este projeto seja útil e interessante para você. Se tiver dúvidas ou sugestões, é só entrar em contato! 😊
